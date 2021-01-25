@@ -130,6 +130,8 @@ def updateSensors():
         qos=1,
         retain=False,
     )
+    print("Updated sensors...")
+    print(payload_str)
 
 
 def get_updates():
@@ -146,7 +148,13 @@ def get_temp():
         reading = check_output(["vcgencmd", "measure_temp"]).decode("UTF-8")
         temp = str(findall("\d+\.\d+", reading)[0])
     else:
-        reading = check_output(["cat", "/sys/class/thermal/thermal_zone0/temp"]).decode("UTF-8")
+        reading = check_output(
+            [
+                "bash",
+                "-c",
+                "sensors | grep edge | cut -c16-17,19",
+            ]
+        ).decode("UTF-8")
         temp = str(reading[0] + reading[1] + "." + reading[2])
     return temp
 
@@ -180,7 +188,8 @@ def get_wifi_strength():  # check_output(["/proc/net/wireless", "grep wlan0"])
 
 
 def get_rpi_power_status():
-    return _underVoltage.get()
+    return 0
+    #return _underVoltage.get()
 
 def get_host_name():
     return socket.gethostname()
